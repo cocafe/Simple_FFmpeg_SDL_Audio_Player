@@ -158,10 +158,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ffmpeg_sdl_audio_player.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\icon-essential\icon1.ico" />
+    <Image Include="resource\icon-essential\player16.ico" />
+    <Image Include="resource\icon-essential\player2.ico" />
+    <Image Include="resource\icon-essential\player64.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
