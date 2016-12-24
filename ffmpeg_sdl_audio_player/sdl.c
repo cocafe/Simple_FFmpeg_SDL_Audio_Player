@@ -97,7 +97,7 @@ void SDLCALL sdl_audio_callback(void *userdata, uint8_t *stream, int32_t len)
 	if (len_play > len)
 		len_play = len;
 
-	SDL_memset(stream, 0x00, len);
+	SDL_memset(stream, 0x00, len_play);
 
 	SDL_MixAudio(stream, pbdata->buf->chunk + pbdata->buf->pos, len_play, pbdata->volume);
 	pbdata->buf->pos += len_play;
