@@ -12,19 +12,19 @@ typedef enum AVSampleFormat AVSampleFormat;
 
 typedef enum AVSampleRate
 {
-	AV_SAMPLE_RATE_6KHZ		= 6000,
-	AV_SAMPLE_RATE_8KHZ		= 8000,
-	AV_SAMPLE_RATE_11KHZ	= 11025,
-	AV_SAMPLE_RATE_16KHZ	= 16000,
-	AV_SAMPLE_RATE_22KHZ	= 22050,
-	AV_SAMPLE_RATE_32KHZ	= 32000,
-	AV_SAMPLE_RATE_44_1KHZ	= 44100,
-	AV_SAMPLE_RATE_48KHZ	= 48000,
-	AV_SAMPLE_RATE_64KHZ	= 64000,
-	AV_SAMPLE_RATE_88_2KHZ	= 88200,
-	AV_SAMPLE_RATE_96KHZ	= 96000,
+	AV_SAMPLE_RATE_6KHZ = 6000,
+	AV_SAMPLE_RATE_8KHZ = 8000,
+	AV_SAMPLE_RATE_11KHZ = 11025,
+	AV_SAMPLE_RATE_16KHZ = 16000,
+	AV_SAMPLE_RATE_22KHZ = 22050,
+	AV_SAMPLE_RATE_32KHZ = 32000,
+	AV_SAMPLE_RATE_44_1KHZ = 44100,
+	AV_SAMPLE_RATE_48KHZ = 48000,
+	AV_SAMPLE_RATE_64KHZ = 64000,
+	AV_SAMPLE_RATE_88_2KHZ = 88200,
+	AV_SAMPLE_RATE_96KHZ = 96000,
 	AV_SAMPLE_RATE_176_4KHZ = 176400,
-	AV_SAMPLE_RATE_192KHZ	= 192000,
+	AV_SAMPLE_RATE_192KHZ = 192000,
 } AVSampleRate;
 
 typedef struct AVSwrCtx {
@@ -78,8 +78,8 @@ void avddata_exit(AVDataCtx *avd);
 int avcodec_open_file(AVDataCtx *avd, const char *filepath);
 int avcodec_decode_file(AVDataCtx *avd);
 
-/* Use this function after decode is done in loop */
-int avcodec_decode_cleanup(AVDataCtx *avd);
+/* Free allocated packet and frame resources */
+int avcodec_decode_unref(AVDataCtx *avd);
 
 /**
  * Return number of samples output per channel

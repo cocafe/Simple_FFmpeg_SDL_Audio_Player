@@ -138,7 +138,7 @@ int avswr_init(
 		swr->dst_nb_chnl,
 		(int32_t)swr->dst_nb_samples,
 		swr->dst_sample_fmt,
-		1);
+		0);
 
 	if (ret < 0) {
 		return -ENODATA;
@@ -284,7 +284,7 @@ int avcodec_decode_file(AVDataCtx *avd)
 	return ret;
 }
 
-int avcodec_decode_cleanup(AVDataCtx *avd)
+int avcodec_decode_unref(AVDataCtx *avd)
 {
 	if (!avd)
 		return -EINVAL;
@@ -332,13 +332,11 @@ int avswr_convert(AVSwrCtx *swr, uint8_t **src_data)
 			swr->dst_nb_chnl,
 			(int32_t)swr->dst_nb_samples,
 			swr->dst_sample_fmt,
-			1);
+			0);
 		if (ret < 0)
 			return -ENOMEM;
 
 		swr->dst_nb_samples_max = swr->dst_nb_samples;
-
-		pr_console("%s: dst_nb_samples: %d changed\n", swr->dst_nb_samples);
 	}
 
 	/* convert to destination format */
@@ -360,7 +358,7 @@ int avswr_convert(AVSwrCtx *swr, uint8_t **src_data)
 		swr->dst_nb_chnl,
 		out_nb_samples, 
 		swr->dst_sample_fmt, 
-		1);
+		0);
 	if (swr->dst_bufsize < 0) {
 		return -EFAULT;
 	}
