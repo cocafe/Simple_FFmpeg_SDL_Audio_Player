@@ -183,13 +183,13 @@ LRESULT WINAPI FFMThread(void)
 				pr_console("%s: error occurred or eof (%#04x)\n", __func__, AVSEEK_FLAG_ANY);
 
 		} else {
-			pr_console("pts: (%lu/%lu) nb_samples: %d pkt_sz: %d swr_nb_samples: %d swr_bufsz: %d\n",
-				avd->frame->pts,
-				avd->format_ctx->streams[avd->stream_idx]->duration,
-				avd->frame->nb_samples,
-				avd->frame->pkt_size,
-				avd->swr->dst_nb_samples,
-				avd->swr->dst_bufsize);
+			//pr_console("pts: (%lu/%lu) nb_samples: %d pkt_sz: %d swr_nb_samples: %d swr_bufsz: %d\n",
+			//	avd->frame->pts,
+			//	avd->format_ctx->streams[avd->stream_idx]->duration,
+			//	avd->frame->nb_samples,
+			//	avd->frame->pkt_size,
+			//	avd->swr->dst_nb_samples,
+			//	avd->swr->dst_bufsize);
 
 			avswr_param_update(avd->swr, avd->frame->nb_samples);
 
@@ -208,13 +208,17 @@ LRESULT WINAPI FFMThread(void)
 			(avd->format_ctx->pb->eof_reached && pcm_buffer_pos_get(&buf_decode))) {
 
 			/* wait: data playback done, wait to fill data init: 1 */
-			WaitForSingleObject(hSemPlayperiodDone, INFINITE);
+			if (WaitForSingleObject(hSemPlayperiodDone, INFINITE) == WAIT_OBJECT_0) {
+				pr_console("%s: received play done\n", __func__);
+			}
 
 			/* signal: get buffer */
 			ReleaseSemaphore(hSemBufferGet, 1, NULL);
 
 			/* wait: buffer got */
-			WaitForSingleObject(hSemBufferGot, INFINITE);
+			if (WaitForSingleObject(hSemBufferGot, INFINITE) == WAIT_OBJECT_0) {
+				pr_console("%s: received buffer got\n", __func__);
+			}
 
 			pcm_buffer_flush(&buf_decode);
 		}
@@ -243,7 +247,9 @@ LRESULT WINAPI SDLThread(void)
 
 	while (1) {
 		/* wait: buffer fill up */
-		WaitForSingleObject(hSemBufferGet, INFINITE);
+		if (WaitForSingleObject(hSemBufferGet, INFINITE) == WAIT_OBJECT_0) {
+			pr_console("%s: received buffer get\n", __func__);
+		}
 
 		if (ThreadFFMExit || (avd->format_ctx->pb->eof_reached && ThreadFFMExit)) {
 			break;
