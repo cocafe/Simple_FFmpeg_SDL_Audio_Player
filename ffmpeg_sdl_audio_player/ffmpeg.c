@@ -147,7 +147,7 @@ int avswr_init(
 	return 0;
 }
 
-int avddata_init(AVDataCtx *avd)
+int avdata_init(AVDataCtx *avd)
 {
 	if (!avd)
 		return -EINVAL;
@@ -182,14 +182,14 @@ int avddata_init(AVDataCtx *avd)
 	return 0;
 }
 
-void avddata_exit(AVDataCtx *avd)
+void avdata_exit(AVDataCtx *avd)
 {
 	swr_free(&avd->swr->swr_ctx);
 	avswr_free(&avd->swr);
 	avformat_network_deinit();
 }
 
-AVDataCtx *avddata_alloc(void)
+AVDataCtx *avdata_alloc(void)
 {
 	AVDataCtx *avd;
 
@@ -200,7 +200,7 @@ AVDataCtx *avddata_alloc(void)
 	return avd;
 }
 
-void avddata_free(AVDataCtx **avd)
+void avdata_free(AVDataCtx **avd)
 {
 	if (!*avd)
 		return;

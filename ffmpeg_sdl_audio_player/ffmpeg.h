@@ -66,15 +66,16 @@ typedef struct AVDataCtx {
 } AVDataCtx;
 
 
-#define InitAVDataCtx avddata_init
-#define FreeAVDataCtx avddata_exit
-#define OpenfileAVCodec avcodec_open_file
+#define InitAVData						avdata_init
+#define DeinitAVData					avdata_exit
 
-AVDataCtx *avddata_alloc(void);
-void avddata_free(AVDataCtx **avd);
+#define OpenfileAVCodec					avcodec_open_file
 
-int avddata_init(AVDataCtx *avd);
-void avddata_exit(AVDataCtx *avd);
+AVDataCtx *avdata_alloc(void);
+void avdata_free(AVDataCtx **avd);
+
+int avdata_init(AVDataCtx *avd);
+void avdata_exit(AVDataCtx *avd);
 
 int avcodec_open_file(AVDataCtx *avd, const char *filepath);
 int avcodec_decode_file(AVDataCtx *avd);
