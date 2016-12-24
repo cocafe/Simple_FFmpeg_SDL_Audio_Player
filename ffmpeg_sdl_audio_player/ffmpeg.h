@@ -76,7 +76,8 @@ typedef struct AVDataCtx {
 #define DoConvertAVSWR					avswr_convert
 #define UpdateAVSWRParam				avswr_param_update
 
-#define OpenfileAVCodec					avcodec_open_file
+#define OpenfileAVCodec					avdata_open_file
+
 #define DecodeFileAVCodec				avcodec_decode_file
 #define FreeAVCodecDecoding				avcodec_decode_unref
 
@@ -86,7 +87,7 @@ void avdata_free(AVDataCtx **avd);
 int avdata_init(AVDataCtx *avd);
 void avdata_exit(AVDataCtx *avd);
 
-int avcodec_open_file(AVDataCtx *avd, const char *filepath);
+int avdata_open_file(AVDataCtx *avd, const char *filepath);
 int avcodec_decode_file(AVDataCtx *avd);
 
 /* Free allocated packet and frame resources */

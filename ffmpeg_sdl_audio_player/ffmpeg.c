@@ -210,7 +210,7 @@ void avdata_free(AVDataCtx **avd)
 	*avd = NULL;
 }
 
-int avcodec_open_file(AVDataCtx *avd, const char *filepath)
+int avdata_open_file(AVDataCtx *avd, const char *filepath)
 {
 	int ret;
 
