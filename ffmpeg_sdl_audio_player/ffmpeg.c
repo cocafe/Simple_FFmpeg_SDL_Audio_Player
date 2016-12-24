@@ -92,7 +92,6 @@ int avswr_init(
 		return -ENOMEM;
 	}
 
-	/* SOME FILE DOES NOT SHOW PROPERLY */
 	swr->src_sample_rate = avd->codec_ctx->sample_rate;
 	swr->src_sample_fmt = avd->codec_ctx->sample_fmt;
 	swr->src_nb_samples = avd->codec_ctx->frame_size ? 
@@ -205,8 +204,6 @@ void avddata_free(AVDataCtx **avd)
 {
 	if (!*avd)
 		return;
-
-	avddata_exit(*avd);
 
 	free(*avd);
 
