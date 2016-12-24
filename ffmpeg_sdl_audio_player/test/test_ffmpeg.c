@@ -67,6 +67,7 @@ err_decode:
 	fclose(out);
 
 err_open:
+	avddata_exit(avd);
 	avddata_free(&avd);
 
 err_init:
@@ -172,6 +173,7 @@ err_proc:
 err_swr_init:
 
 err_open:
+	avddata_exit(avd);
 	avddata_free(&avd);
 
 err_init:
@@ -302,6 +304,7 @@ out_proc:
 err_swr_init:
 
 err_open:
+	avddata_exit(avd);
 	avddata_free(&avd);
 
 err_init:
