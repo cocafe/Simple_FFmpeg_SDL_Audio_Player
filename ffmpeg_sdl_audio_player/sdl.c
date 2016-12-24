@@ -21,8 +21,6 @@ void sdl_playback_buffer_free(SDLPlaybackBuffer **buf)
 	*buf = NULL;
 }
 
-/* sdl_playback_buffer_init() exit() */
-
 SDLPlaybackData *sdl_playback_data_alloc(void)
 {
 	SDLPlaybackData *data;
@@ -143,7 +141,6 @@ int sdl_audio_data_init(
 	sad->spec->padding = 0;
 	sad->spec->silence = 0;
 	sad->spec->userdata = (void *)sad->playback_data;
-	/* sad->spec->size alternative if nb_sample is not used  */
 
 	sad->playback_data->hSemSDLPlaybackPending = CreateSemaphore(NULL, 0, 1, NULL);
 
