@@ -292,11 +292,11 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 {
 	int ret = 0;
 
-	avd = avddata_alloc();
+	avd = avdata_alloc();
 	if (!avd)
 		return 1;
 
-	if (avddata_init(avd)) {
+	if (avdata_init(avd)) {
 		return 1;
 	}
 
@@ -353,8 +353,8 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 	sdl_audio_data_exit(sad);
 	sdl_audio_data_free(&sad);
 
-	avddata_exit(avd);
-	avddata_free(&avd);
+	avdata_exit(avd);
+	avdata_free(&avd);
 
 	return 0;
 }
@@ -369,11 +369,11 @@ int test_ffmpeg_swr_sdl_playback(
 	AVDataCtx *avd;
 	int ret = 0;
 
-	avd = avddata_alloc();
+	avd = avdata_alloc();
 	if (!avd)
 		goto err_ret;
 
-	if (avddata_init(avd)) {
+	if (avdata_init(avd)) {
 		goto free_av;
 	}
 
@@ -456,8 +456,8 @@ free_sdl:
 	sdl_audio_data_free(&sad);
 
 free_av:
-	avddata_exit(avd);
-	avddata_free(&avd);
+	avdata_exit(avd);
+	avdata_free(&avd);
 
 	return 0;
 

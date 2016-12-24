@@ -17,11 +17,11 @@ int test_ffmpeg_decode(const char *url_open, const char *url_output)
 	FILE *out;
 	int ret = 0;
 
-	avd = avddata_alloc();
+	avd = avdata_alloc();
 	if (!avd)
 		return -ENOMEM;
 
-	if (avddata_init(avd)) {
+	if (avdata_init(avd)) {
 		goto err_init;
 	}
 
@@ -67,8 +67,8 @@ err_decode:
 	fclose(out);
 
 err_open:
-	avddata_exit(avd);
-	avddata_free(&avd);
+	avdata_exit(avd);
+	avdata_free(&avd);
 
 err_init:
 	return 0;
@@ -85,11 +85,11 @@ int test_ffmpeg_swr(
 	FILE *out;
 	int ret = 0;
 
-	avd = avddata_alloc();
+	avd = avdata_alloc();
 	if (!avd)
 		return -ENOMEM;
 
-	if (avddata_init(avd)) {
+	if (avdata_init(avd)) {
 		goto err_init;
 	}
 
@@ -173,8 +173,8 @@ err_proc:
 err_swr_init:
 
 err_open:
-	avddata_exit(avd);
-	avddata_free(&avd);
+	avdata_exit(avd);
+	avdata_free(&avd);
 
 err_init:
 	return 0;
@@ -197,11 +197,11 @@ int test_ffmpeg_swr_buffered(
 	int32_t buffer_count;
 	int32_t buffer_size;
 
-	avd = avddata_alloc();
+	avd = avdata_alloc();
 	if (!avd)
 		return -ENOMEM;
 
-	if (avddata_init(avd)) {
+	if (avdata_init(avd)) {
 		goto err_init;
 	}
 
@@ -304,8 +304,8 @@ out_proc:
 err_swr_init:
 
 err_open:
-	avddata_exit(avd);
-	avddata_free(&avd);
+	avdata_exit(avd);
+	avdata_free(&avd);
 
 err_init:
 	return 0;
