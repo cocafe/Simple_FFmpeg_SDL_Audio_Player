@@ -173,18 +173,15 @@ void sdl_audio_data_exit(SDLAudioData *sad)
 
 int sdl_audio_playback_init(
 	SDLPlaybackData *pbdata,
-	int32_t volume_def,
-	uint8_t *chunk_ref,
-	int32_t chunk_size,
-	int32_t nb_samples)
+	int32_t volume_def)
 {
 	if (!pbdata)
 		return -EINVAL;
 
 	pbdata->buf->pos = 0;
-	pbdata->buf->chunk = chunk_ref;
-	pbdata->buf->chunk_size = chunk_size;
-	pbdata->buf->nb_samples = nb_samples;
+	pbdata->buf->chunk = NULL;
+	pbdata->buf->chunk_size = 0;
+	pbdata->buf->nb_samples = 0;
 	pbdata->buf->refill_pending = FALSE;
 
 	pbdata->volume = volume_def;

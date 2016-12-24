@@ -300,7 +300,7 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 		return 1;
 	}
 
-	if (avcodec_open_file(avd, url_open)) {
+	if (avdata_open_file(avd, url_open)) {
 		return 1;
 	}
 
@@ -327,10 +327,7 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 
 	sdl_audio_playback_init(
 		sad->playback_data, 
-		SDL_MIX_MAXVOLUME, 
-		avd->swr->dst_data[0], 
-		avd->swr->dst_linesize, 
-		(int32_t)avd->swr->dst_nb_samples);
+		SDL_MIX_MAXVOLUME);
 
 	SDL_PauseAudio(FALSE);
 
@@ -377,7 +374,7 @@ int test_ffmpeg_swr_sdl_playback(
 		goto free_av;
 	}
 
-	if (avcodec_open_file(avd, url_open)) {
+	if (avdata_open_file(avd, url_open)) {
 		goto free_av;
 	}
 
@@ -404,10 +401,7 @@ int test_ffmpeg_swr_sdl_playback(
 
 	sdl_audio_playback_init(
 		sad->playback_data,
-		SDL_MIX_MAXVOLUME,
-		avd->swr->dst_data[0],
-		avd->swr->dst_linesize,
-		(int32_t)avd->swr->dst_nb_samples);
+		SDL_MIX_MAXVOLUME);
 
 	SDL_PauseAudio(FALSE);
 
