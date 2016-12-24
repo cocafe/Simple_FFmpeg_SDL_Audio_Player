@@ -164,6 +164,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="ffmpeg.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="sdl_snd.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="test\include\test.h" />
   </ItemGroup>
@@ -171,7 +172,9 @@
     <ClCompile Include="debug.c" />
     <ClCompile Include="ffmpeg.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="sdl.c" />
     <ClCompile Include="test\test_ffmpeg.c" />
+    <ClCompile Include="test\test_sdl.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ffmpeg_sdl_audio_player.rc" />
@@ -181,6 +184,9 @@
     <Image Include="resource\icon-essential\player16.ico" />
     <Image Include="resource\icon-essential\player2.ico" />
     <Image Include="resource\icon-essential\player64.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

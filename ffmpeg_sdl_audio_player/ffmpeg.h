@@ -62,6 +62,7 @@ typedef struct AVDataCtx {
 	AVFrame								*frame;
 
 	int32_t								stream_idx;
+	int64_t								timebase;
 } AVDataCtx;
 
 

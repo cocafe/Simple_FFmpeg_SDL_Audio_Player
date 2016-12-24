@@ -36,6 +36,9 @@
     <ClInclude Include="test\include\test.h">
       <Filter>Header Files\Test</Filter>
     </ClInclude>
+    <ClInclude Include="sdl_snd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -49,6 +52,12 @@
     </ClCompile>
     <ClCompile Include="test\test_ffmpeg.c">
       <Filter>Source Files\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\test_sdl.c">
+      <Filter>Source Files\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="sdl.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,5 +78,8 @@
     <Image Include="resource\icon-essential\player16.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
