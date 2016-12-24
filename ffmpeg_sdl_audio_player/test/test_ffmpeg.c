@@ -25,7 +25,7 @@ int test_ffmpeg_decode(const char *url_open, const char *url_output)
 		goto err_init;
 	}
 
-	if (avcodec_open_file(avd, url_open)) {
+	if (avdata_open_file(avd, url_open)) {
 		goto err_open;
 	}
 
@@ -93,7 +93,7 @@ int test_ffmpeg_swr(
 		goto err_init;
 	}
 
-	if (avcodec_open_file(avd, url_open)) {
+	if (avdata_open_file(avd, url_open)) {
 		goto err_open;
 	}
 
@@ -205,7 +205,7 @@ int test_ffmpeg_swr_buffered(
 		goto err_init;
 	}
 
-	if (avcodec_open_file(avd, url_open)) {
+	if (avdata_open_file(avd, url_open)) {
 		goto err_open;
 	}
 
