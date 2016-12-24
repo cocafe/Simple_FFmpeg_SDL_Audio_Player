@@ -57,7 +57,7 @@ int test_ffmpeg_decode(const char *url_open, const char *url_output)
 			1,
 			out);
 
-		avcodec_decode_cleanup(avd);
+		avcodec_decode_unref(avd);
 
 	} while (1);
 
@@ -117,7 +117,7 @@ int test_ffmpeg_swr(
 			if (avd->format_ctx->pb->eof_reached)
 				pr_console("%s: eof reached\n", __func__);
 			else
-				pr_console("%s: error occurred or eof (%#04x)\n", __func__, ret);
+				pr_console("%s: error occurred during frame decode(%#04x)\n", __func__, ret);
 
 			goto err_proc;
 		}
@@ -162,7 +162,7 @@ int test_ffmpeg_swr(
 			1,
 			out);
 
-		avcodec_decode_cleanup(avd);
+		avcodec_decode_unref(avd);
 	} while (1);
 
 
@@ -282,7 +282,7 @@ int test_ffmpeg_swr_buffered(
 		buffer_pos += avd->swr->dst_bufsize;
 		buffer_count++;
 
-		avcodec_decode_cleanup(avd);
+		avcodec_decode_unref(avd);
 	} while (1);
 
 out_buffer:
