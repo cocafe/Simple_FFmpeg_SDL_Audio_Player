@@ -183,13 +183,13 @@ LRESULT WINAPI FFMThread(void)
 				pr_console("%s: error occurred or eof (%#04x)\n", __func__, AVSEEK_FLAG_ANY);
 
 		} else {
-			//pr_console("pts: (%lu/%lu) nb_samples: %d pkt_sz: %d swr_nb_samples: %d swr_bufsz: %d\n",
-			//	avd->frame->pts,
-			//	avd->format_ctx->streams[avd->stream_idx]->duration,
-			//	avd->frame->nb_samples,
-			//	avd->frame->pkt_size,
-			//	avd->swr->dst_nb_samples,
-			//	avd->swr->dst_bufsize);
+			pr_console("pts: (%lu/%lu) nb_samples: %d pkt_sz: %d swr_nb_samples: %d swr_bufsz: %d\n",
+				avd->frame->pts,
+				avd->format_ctx->streams[avd->stream_idx]->duration,
+				avd->frame->nb_samples,
+				avd->frame->pkt_size,
+				avd->swr->dst_nb_samples,
+				avd->swr->dst_bufsize);
 
 			avswr_param_update(avd->swr, avd->frame->nb_samples);
 
@@ -336,8 +336,8 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 
 	InitSemaphore();
 
-	pcm_buffer_init(&buf_decode, avd->swr->dst_linesize * 150);
-	pcm_buffer_init(&buf_playback, avd->swr->dst_linesize * 150);
+	pcm_buffer_init(&buf_decode, avd->swr->dst_linesize * 4);
+	pcm_buffer_init(&buf_playback, avd->swr->dst_linesize * 4);
 
 	hThreadFFM = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)FFMThread, NULL, 0, wdFFMThreadID);
 	hThreadSDL = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)SDLThread, NULL, 0, wdSDLThreadID);
