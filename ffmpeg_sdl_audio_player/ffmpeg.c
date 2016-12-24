@@ -67,7 +67,7 @@ uint16_t frame_size_detect(
 	av_frame_free(&frame);
 	av_packet_free(&packet);
 
-	av_seek_frame(fmt_ctx, stream_idx, 0, 0);
+	av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_ANY);
 
 	return frame_size;
 }
@@ -359,9 +359,8 @@ int avswr_convert(AVSwrCtx *swr, uint8_t **src_data)
 		out_nb_samples, 
 		swr->dst_sample_fmt, 
 		0);
-	if (swr->dst_bufsize < 0) {
-		return -EFAULT;
-	}
+	if (swr->dst_bufsize < 0)
+		swr->dst_bufsize = swr->dst_linesize;
 
 	return out_nb_samples;
 }
