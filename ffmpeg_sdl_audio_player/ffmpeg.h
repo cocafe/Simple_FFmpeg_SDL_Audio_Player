@@ -69,7 +69,16 @@ typedef struct AVDataCtx {
 #define InitAVData						avdata_init
 #define DeinitAVData					avdata_exit
 
+#define AllocAVData						avdata_alloc
+#define FreeAVData						avdata_free
+
+#define InitAVSWR						avswr_init
+#define DoConvertAVSWR					avswr_convert
+#define UpdateAVSWRParam				avswr_param_update
+
 #define OpenfileAVCodec					avcodec_open_file
+#define DecodeFileAVCodec				avcodec_decode_file
+#define FreeAVCodecDecoding				avcodec_decode_unref
 
 AVDataCtx *avdata_alloc(void);
 void avdata_free(AVDataCtx **avd);
