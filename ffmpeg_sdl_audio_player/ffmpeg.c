@@ -220,6 +220,8 @@ int avdata_open_file(AVDataCtx *avd, const char *filepath)
 	if (!filepath)
 		return -EINVAL;
 
+	pr_console("%s: open file: %s\n", __func__, filepath);
+
 	/* TODO: Fix WCHAR */
 	if (avformat_open_input(&avd->format_ctx, filepath, NULL, NULL) < 0) {
 		return -ENODATA;
@@ -245,7 +247,7 @@ int avdata_open_file(AVDataCtx *avd, const char *filepath)
 
 	avd->timebase = avd->codec_ctx->time_base.num * AV_TIME_BASE / avd->codec_ctx->time_base.den;
 
-	pr_console("%s:\n", __func__);
+	pr_console("%s: file property\n", __func__);
 	pr_console("stream_idx: %d\n", avd->stream_idx);
 	pr_console("bit rate: %3d\n", avd->format_ctx->bit_rate);
 	pr_console("sample rate: %d\n", avd->codec_ctx->sample_rate);
