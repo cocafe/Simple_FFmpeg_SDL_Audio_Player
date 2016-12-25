@@ -7,7 +7,7 @@
 #define DEBUG
 
 #define InitDebugConsole		debug_console_init
-#define FreeDebugConsole		debug_console_exit
+#define DeinitDebugConsole		debug_console_exit
 
 #ifdef DEBUG
 
