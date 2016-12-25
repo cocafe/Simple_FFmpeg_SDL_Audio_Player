@@ -4,8 +4,6 @@
 
 #include <conio.h>
 
-#define DEBUG
-
 #define InitDebugConsole		debug_console_init
 #define DeinitDebugConsole		debug_console_exit
 
