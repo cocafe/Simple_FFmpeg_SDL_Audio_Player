@@ -11,6 +11,8 @@
 
 #include <test.h>
 
+#ifdef COMPILE_TEST
+
 int test_ffmpeg_decode(const char *url_open, const char *url_output)
 {
 	AVDataCtx *avd;
@@ -310,3 +312,5 @@ err_open:
 err_init:
 	return 0;
 }
+
+#endif /* COMPILE_TEST */

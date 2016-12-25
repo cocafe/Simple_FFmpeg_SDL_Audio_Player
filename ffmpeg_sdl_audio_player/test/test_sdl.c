@@ -12,6 +12,8 @@
 
 #include <test.h>
 
+#ifdef COMPILE_TEST
+
 SDLAudioData *sad;
 AVDataCtx *avd;
 
@@ -458,3 +460,5 @@ free_av:
 err_ret:
 	return -ENODATA;
 }
+
+#endif /* COMPILE_TEST */

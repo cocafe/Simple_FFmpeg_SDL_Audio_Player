@@ -4,6 +4,10 @@
  *		Author: cocafe <cocafehj@gmail.com>
  */
 
+#pragma once
+
+#ifdef COMPLIE_TEST
+
 /**
  * Test ffmpeg decode function,
  * save decoded PCM stream to a file
@@ -46,3 +50,5 @@ int test_ffmpeg_swr_sdl_playback_buffered(
 	int64_t target_chnl_layout,
 	int32_t target_sample_rate,
 	AVSampleFormat target_sample_fmt);
+
+#endif
