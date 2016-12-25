@@ -384,7 +384,7 @@ int UpdateMainStatusBar(HWND hMainWnd)
 	wsprintf(buf, L"%s | ", PlaybackStatus[GetPlaybackState(gPlayerIns)]);
 	wsprintf(buf, L"%s%ldKbps | ", buf, GetAudiofileBitrate(gPlayerIns) / 1000);
 	wsprintf(buf, L"%s%dHz | ", buf, GetAudiofileSampleRate(gPlayerIns));
-	wsprintf(buf, L"%s%ld / %ld | ", buf, GetPlayerCurrentTimestamp(gPlayerIns), GtePlayerStreamDuration(gPlayerIns));
+	wsprintf(buf, L"%s%I64d / %I64d | ", buf, GetPlayerCurrentTimestamp(gPlayerIns), GtePlayerStreamDuration(gPlayerIns));
 	wsprintf(buf, L"%sVol: %d%%%s | ", buf, (GetPlayerVolume(gPlayerIns) * 100 / AUDIO_VOLUME_MAX), GetPlayerVolumeMute(gPlayerIns) ? L" (muted)" : L"");
 
 	SendMessage(hStatus, SB_SETTEXT, 0, (LPARAM)buf);
