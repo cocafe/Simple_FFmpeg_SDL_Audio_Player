@@ -743,6 +743,7 @@ int player_playback_stop(PlayerData *player)
 			player->playback_state = PLAYBACK_STOP;
 
 			player_thread_destroy(player);
+			player_buffer_flush(player);
 			player_seek_timestamp(player, 0, AVSEEK_FLAG_ANY);
 
 			break;
