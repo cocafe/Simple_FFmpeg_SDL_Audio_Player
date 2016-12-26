@@ -615,6 +615,17 @@ int player_thread_destroy(PlayerData *player)
 	return 0;
 }
 
+int player_buffer_flush(PlayerData *player)
+{
+	if (!player)
+		return -EINVAL;
+
+	playback_buf_flush(player->buf_decode);
+	playback_buf_flush(player->buf_playback);
+
+	return 0;
+}
+
 int player_seek_timestamp(
 	PlayerData *player, 
 	int64_t timestamp,
