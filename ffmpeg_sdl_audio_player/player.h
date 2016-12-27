@@ -87,8 +87,8 @@ typedef struct PlayerData {
 	int64_t							pos_cur;
 	int64_t							pos_max;
 
-	int64_t							seekable;
-	int64_t							seeking;
+	int32_t							seekable;
+	int32_t							seeking;
 	int64_t							seek_step;
 
 	PlaybackState					playback_state;
