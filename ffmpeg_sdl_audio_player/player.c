@@ -64,6 +64,14 @@ void player_threadctx_deinit(PlayerData *player)
 	CloseHandle(player->hSemBufferRecv);
 	CloseHandle(player->hSemFFMExit);
 	CloseHandle(player->hSemSDLExit);
+	CloseHandle(player->hThreadFFM);
+	CloseHandle(player->hThreadSDL);
+
+	player->hThreadFFM = NULL;
+	player->hThreadSDL = NULL;
+
+	player->ThreadFFMid = 0;
+	player->ThreadSDLid = 0;
 
 	player->ThreadFFMExit = 1;
 	player->ThreadSDLExit = 1;
@@ -618,26 +626,38 @@ int player_thread_destroy(PlayerData *player)
 	if (!player)
 		return -EINVAL;
 
-	/* TODO: Timeout: TerminateThread() */
+	switch (WaitForSingleObject(player->hSemFFMExit, 1000)) {
+		case WAIT_OBJECT_0:
+			pr_console("%s: receive ffm thread exit\n", __func__);
+			break;
 
-	if (WaitForSingleObject(player->hSemFFMExit, INFINITE) == WAIT_OBJECT_0) {
-		pr_console("%s: receive ffm thread exit\n", __func__);
+		case WAIT_TIMEOUT:
+			pr_console("%s: terminating ffm thread!\n", __func__);
+			TerminateThread(player->hThreadFFM, -ETIMEDOUT);
+			break;
+
+		default:
+			MessageBoxErr(L"Exception occurred during stop\n");
+			break;
 	}
 
-	if (WaitForSingleObject(player->hSemSDLExit, INFINITE) == WAIT_OBJECT_0) {
-		pr_console("%s: receive sdl thread exit\n", __func__);
+	switch (WaitForSingleObject(player->hSemSDLExit, 1000)) {
+		case WAIT_OBJECT_0:
+			pr_console("%s: receive sdl thread exit\n", __func__);
+			break;
+
+		case WAIT_TIMEOUT:
+			pr_console("%s: terminating sdl thread!\n", __func__);
+			TerminateThread(player->hThreadSDL, -ETIMEDOUT);
+			break;
+
+		default:
+			MessageBoxErr(L"Exception occurred during stop\n");
+			break;
 	}
 
-	CloseHandle(player->hThreadFFM);
-	CloseHandle(player->hThreadSDL);
+	/* TODO: if exception occurred, reload audio context */
 
-	player->hThreadFFM = NULL;
-	player->hThreadSDL = NULL;
-
-	player->ThreadFFMid = 0;
-	player->ThreadSDLid = 0;
-
-	/* if use TerminateThread() make sure variable changed */
 	player_threadctx_deinit(player);
 
 	return 0;
