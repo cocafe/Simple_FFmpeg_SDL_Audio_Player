@@ -397,7 +397,9 @@ int UpdateMainStatusBar(HWND hMainWnd)
 DWORD WINAPI UpdateMainStatusbarThread(void)
 {
 	while (1) {
-		WaitForSingleObject(gWndData->hSemUpdateStatbar, INFINITE);
+		/* can be signaled to update or update by self */
+		/* XXX: we can use timer provided by windows here? */
+		WaitForSingleObject(gWndData->hSemUpdateStatbar, MainStatusBarUpdateInterval);
 		UpdateMainStatusBar(gWndData->hMainWnd);
 	}
 

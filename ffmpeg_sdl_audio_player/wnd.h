@@ -68,6 +68,8 @@ typedef struct WndData {
 	HANDLE							hStatbarThr;
 	HANDLE							hSemUpdateStatbar;
 	HANDLE							hMutexUpdateStatbar;
+#define MainStatusBarUpdateInterval	(1000)
+
 	/* TODO: Track bar */
 
 #define MAX_LOADSTRING				(100)
