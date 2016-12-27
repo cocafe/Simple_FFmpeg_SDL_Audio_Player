@@ -998,11 +998,10 @@ int player_seek_timestamp(
 	if (last_paused)
 		player_playback_pause(player);
 
-	player->seeking = 0;
-
 	ReleaseMutex(player->hMutexPlaybackSwitch);
 
 seek_unlock:
+	player->seeking = 0;
 	ReleaseMutex(player->hMutexPlaybackSeek);
 
 	return 0;
