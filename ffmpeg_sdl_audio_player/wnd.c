@@ -330,7 +330,7 @@ int OpenAudioFile(HWND hWnd)
 
 	LoadString(NULL, IDS_MAIN_TITLE, buf, MAX_PATH + MAX_LOADSTRING);
 
-	SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP);
+	SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP, INFINITE);
 	DeinitPlayerAudio(gPlayerIns);
 	if (InitPlayerAudio(
 		gPlayerIns,
@@ -420,15 +420,15 @@ int ProcessWMEvent(HWND hWnd, WORD wID, WORD wEvent)
 			break;
 
 		case IDM_BTN_STOP:
-			SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP);
+			SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP, 200);
 			break;
 
 		case IDM_BTN_PLAY:
-			SwitchPlaybackState(gPlayerIns, PLAYBACK_PLAY);
+			SwitchPlaybackState(gPlayerIns, PLAYBACK_PLAY, 200);
 			break;
 
 		case IDM_BTN_PAUSE:
-			SwitchPlaybackState(gPlayerIns, PLAYBACK_PAUSE);
+			SwitchPlaybackState(gPlayerIns, PLAYBACK_PAUSE, 200);
 			break;
 
 		case IDM_BTN_VOLUMEINC:
@@ -505,7 +505,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			TerminateThread(gWndData->hStatbarThr, -EINTR);
 
-			SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP);
+			SwitchPlaybackState(gPlayerIns, PLAYBACK_STOP, INFINITE);
 			DeinitPlayerAudio(gPlayerIns);
 			DeinitPlayerData(gPlayerIns);
 			FreePlayerData(&gPlayerIns);

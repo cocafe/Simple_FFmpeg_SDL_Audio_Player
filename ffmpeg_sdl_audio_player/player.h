@@ -144,7 +144,7 @@ void player_data_free(PlayerData **data);
 int player_data_register(PlayerData *player);
 
 PlaybackState player_playback_state_get(PlayerData *player);
-int player_playback_state_switch(PlayerData *player, PlaybackState state);
+int player_playback_state_switch(PlayerData *player, PlaybackState state, int timeout_ms);
 
 int player_seek_direction(
 	PlayerData *player,

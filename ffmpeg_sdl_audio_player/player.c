@@ -575,7 +575,7 @@ LRESULT PlaybackDaemonThread(LPVOID *data)
 
 		if (ret == WAIT_OBJECT_0) {
 			/* stop and reset playback */
-			player_playback_state_switch(player, PLAYBACK_STOP);
+			player_playback_state_switch(player, PLAYBACK_STOP, INFINITE);
 
 			break;
 		}
@@ -800,7 +800,7 @@ int player_playback_pause(PlayerData *player)
 	return 0;
 }
 
-int player_playback_state_switch(PlayerData *player, PlaybackState state)
+int player_playback_state_switch(PlayerData *player, PlaybackState state, int timeout_ms)
 {
 	int ret = 0;
 
@@ -810,8 +810,10 @@ int player_playback_state_switch(PlayerData *player, PlaybackState state)
 	if (!player->fileload)
 		return -EINVAL;
 
-	if (WaitForSingleObject(player->hMutexPlaybackSwitch, 200) == WAIT_TIMEOUT)
+	if (WaitForSingleObject(player->hMutexPlaybackSwitch, timeout_ms) == WAIT_TIMEOUT) {
+		pr_console("%s: busy\n", __func__);
 		return -ETIMEDOUT;
+	}
 
 	if (player->playback_state != state) {
 		switch (state) {
