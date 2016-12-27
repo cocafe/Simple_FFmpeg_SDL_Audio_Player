@@ -25,12 +25,10 @@ void player_mutex_lock_deinit(PlayerData *player)
 
 void player_threadctx_init(PlayerData *player)
 {
-	player->hSemPlayperiodDone = CreateSemaphore(NULL, 1, 1, NULL);
+	player->hSemPlayperiodDone = CreateSemaphore(NULL, 1, 2, NULL);
 	player->hSemPlaybackFinish = CreateSemaphore(NULL, 0, 1, NULL);
 
 	player->hSemPlaybackFFMStart = CreateSemaphore(NULL, 0, 1, NULL);
-	player->hSemPlaybackFFMPause = CreateSemaphore(NULL, 0, 1, NULL);
-	player->hSemPlaybackFFMResume = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackFFMPreSeek = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackFFMPostSeek = CreateSemaphore(NULL, 0, 1, NULL);
 
@@ -53,8 +51,6 @@ void player_threadctx_init(PlayerData *player)
 void player_threadctx_deinit(PlayerData *player)
 {
 	CloseHandle(player->hSemPlaybackFFMStart);
-	CloseHandle(player->hSemPlaybackFFMPause);
-	CloseHandle(player->hSemPlaybackFFMResume);
 	CloseHandle(player->hSemPlaybackFFMPreSeek);
 	CloseHandle(player->hSemPlaybackFFMPostSeek);
 	CloseHandle(player->hSemPlaybackSDLStart);
@@ -365,13 +361,6 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		if (player->ThreadSDLExit)
 			break;
 
-		if (player->seeking) {
-			/* signal: thread blocked, allow to seek */
-			ReleaseSemaphore(player->hSemPlaybackFFMPreSeek, 1, NULL);
-			/* wait: wait for seek frame done */
-			WaitForSingleObject(player->hSemPlaybackFFMPostSeek, INFINITE);
-		}
-
 		if (player->playback_state == PLAYBACK_STOP) {
 			break;
 		}
@@ -388,7 +377,10 @@ LRESULT WINAPI FFMThread(LPVOID data)
 				pr_console("%s: received play done\n", __func__);
 			}
 
-			/* TODO: if sought, buffer will be flushed. refill buffer */
+			/* we perform seeking after pause here, buffer will be flushed */
+			if (buf->buf_len == 0) {
+				continue;
+			}
 
 			/* signal: get buffer */
 			ReleaseSemaphore(player->hSemBufferSend, 1, NULL);
@@ -452,17 +444,6 @@ LRESULT WINAPI SDLThread(LPVOID data)
 	ReleaseSemaphore(player->hSemPlaybackSDLStart, 1, NULL);
 
 	while (1) {
-		if (player->seeking) {
-			SDL_PauseAudio(TRUE);
-
-			/* signal: thread blocked, allow to seek */
-			ReleaseSemaphore(player->hSemPlaybackSDLPreSeek, 1, NULL);
-			/* wait: wait for seek done */
-			WaitForSingleObject(player->hSemPlaybackSDLPostSeek, INFINITE);
-
-			SDL_PauseAudio(FALSE);
-		}
-
 		if (player->playback_state == PLAYBACK_STOP) {
 			break;
 		}
@@ -499,6 +480,21 @@ LRESULT WINAPI SDLThread(LPVOID data)
 			WaitForSingleObject(player->hSemPlaybackSDLResume, INFINITE);
 
 			SDL_PauseAudio(FALSE);
+		}
+
+		if (player->seeking) {
+			SDL_PauseAudio(TRUE);
+
+			/* signal: thread blocked, allow to seek */
+			ReleaseSemaphore(player->hSemPlaybackSDLPreSeek, 1, NULL);
+			/* wait: wait for seek done */
+			WaitForSingleObject(player->hSemPlaybackSDLPostSeek, INFINITE);
+
+			SDL_PauseAudio(FALSE);
+
+			/* signal: require new buffer after seeking */
+			ReleaseSemaphore(player->hSemPlayperiodDone, 2, NULL);
+			continue;
 		}
 
 		playback_buf_pos_reset(buf);
@@ -655,7 +651,7 @@ int player_seek_timestamp(
 	int64_t timestamp,
 	int flags) 
 {
-	int paused = 0;
+	int last_paused = 0;
 	int ret;
 
 	pr_console("%s: called...\n", __func__);
@@ -690,10 +686,16 @@ int player_seek_timestamp(
 
 	player->seeking = 1;
 
+	if (player->playback_state == PLAYBACK_PAUSE) {
+		/* call player_playback_resume() directly */
+		player_playback_resume(player);
+
+		last_paused = 1;
+	}
+
 	if (player->playback_state == PLAYBACK_PLAY) {
 		/* wait: blocking both playback threads */
 		WaitForSingleObject(player->hSemPlaybackSDLPreSeek, INFINITE);
-		WaitForSingleObject(player->hSemPlaybackFFMPreSeek, INFINITE);
 	}
 
 	ret = av_seek_frame(player->avd->format_ctx, player->avd->stream_idx, timestamp, flags);
@@ -710,9 +712,11 @@ int player_seek_timestamp(
 
 	if (player->playback_state == PLAYBACK_PLAY) {
 		/* signal: unblock both playback thread */
-		ReleaseSemaphore(player->hSemPlaybackFFMPostSeek, 1, NULL);
 		ReleaseSemaphore(player->hSemPlaybackSDLPostSeek, 1, NULL);
 	}
+
+	if (last_paused)
+		player_playback_pause(player);
 
 	player->seeking = 0;
 
