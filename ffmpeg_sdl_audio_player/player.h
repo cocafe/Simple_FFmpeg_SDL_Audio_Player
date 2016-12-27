@@ -67,8 +67,6 @@ typedef struct PlayerData {
 	HANDLE							hSemPlaybackSDLPostSeek;
 
 	HANDLE							hSemPlaybackFFMStart;
-	HANDLE							hSemPlaybackFFMPause;
-	HANDLE							hSemPlaybackFFMResume;
 	HANDLE							hSemPlaybackFFMPreSeek;
 	HANDLE							hSemPlaybackFFMPostSeek;
 
