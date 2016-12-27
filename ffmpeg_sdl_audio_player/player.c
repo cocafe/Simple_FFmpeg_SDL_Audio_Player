@@ -971,12 +971,12 @@ int player_seek_timestamp(
 		/* wait: block sdl thread, sync with ffm thread */
 		while (WaitForSingleObject(player->hSemPlaybackSDLPreSeek, 100) == WAIT_TIMEOUT) {
 			if (player->ThreadSDLExit)
-				goto seek_unlock;
+				goto switch_unlock;
 		}
 
 		while (WaitForSingleObject(player->hSemPlaybackFFMPreSeek, 100) == WAIT_TIMEOUT) {
 			if (player->ThreadFFMExit)
-				goto seek_unlock;
+				goto switch_unlock;
 		}
 	}
 
@@ -1000,10 +1000,11 @@ int player_seek_timestamp(
 	if (last_paused)
 		player_playback_pause(player);
 
+switch_unlock:
+	player->seeking = 0;
 	ReleaseMutex(player->hMutexPlaybackSwitch);
 
 seek_unlock:
-	player->seeking = 0;
 	ReleaseMutex(player->hMutexPlaybackSeek);
 
 	return 0;
