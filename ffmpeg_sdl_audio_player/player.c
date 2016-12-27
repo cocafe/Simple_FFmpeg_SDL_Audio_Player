@@ -646,98 +646,6 @@ int player_buffer_flush(PlayerData *player)
 	return 0;
 }
 
-int player_seek_timestamp(
-	PlayerData *player, 
-	int64_t timestamp,
-	int flags) 
-{
-	int last_paused = 0;
-	int ret;
-
-	pr_console("%s: called...\n", __func__);
-
-	if (!player)
-		return -EINVAL;
-
-	if (!player->fileload)
-		return -ENODATA;
-
-	if (!player->seekable)
-		return -EINVAL;
-
-	if (player->seeking)
-		return -EBUSY;
-
-	if (timestamp < player->pos_min)
-		timestamp = player->pos_min;
-
-	if (timestamp > player->pos_max)
-		timestamp = player->pos_max;
-
-	/* if busy, return immediately, or UI will freeze */
-	if (WaitForSingleObject(player->hMutexPlaybackSeek, 10) != WAIT_OBJECT_0) {
-		pr_console("%s: lock failed: busy\n", __func__);
-		return -EBUSY;
-	}
-
-	/* not allowed to change playback state during seeking */
-	if (WaitForSingleObject(player->hMutexPlaybackSwitch, 10) != WAIT_OBJECT_0)
-		goto seek_unlock;
-
-	player->seeking = 1;
-
-	if (player->playback_state == PLAYBACK_PAUSE) {
-		/* call player_playback_resume() directly */
-		player_playback_resume(player);
-
-		last_paused = 1;
-	}
-
-	if (player->playback_state == PLAYBACK_PLAY) {
-		/* wait: blocking both playback threads */
-		WaitForSingleObject(player->hSemPlaybackSDLPreSeek, INFINITE);
-	}
-
-	ret = av_seek_frame(player->avd->format_ctx, player->avd->stream_idx, timestamp, flags);
-
-	/* WORKAROUND: av_read_frame() needs some time to sync up context */
-	Sleep(SEEK_INTERVAL_DELAY_MS);
-
-	/* seek frame succeed */
-	if (ret >= 0)
-		player->pos_cur = timestamp;
-
-	/* clear ffmpeg decoded buffer */
-	playback_buf_flush(player->buf_decode);
-
-	if (player->playback_state == PLAYBACK_PLAY) {
-		/* signal: unblock both playback thread */
-		ReleaseSemaphore(player->hSemPlaybackSDLPostSeek, 1, NULL);
-	}
-
-	if (last_paused)
-		player_playback_pause(player);
-
-	player->seeking = 0;
-
-	ReleaseMutex(player->hMutexPlaybackSwitch);
-
-seek_unlock:
-	ReleaseMutex(player->hMutexPlaybackSeek);
-
-	return 0;
-}
-
-int player_seek_direction(
-	PlayerData *player,
-	PlaybackSeekDirection dir)
-{
-	return player_seek_timestamp(
-		player,
-		player->pos_cur + (player->seek_step * dir),
-		AVSEEK_FLAG_ANY);
-}
-
 int player_playback_resume(PlayerData *player) {
 	if (!player)
 		return -EINVAL;
@@ -984,6 +892,98 @@ int player_vol_set_by_step(PlayerData *player, int steps)
 	return 0;
 }
 
+int player_seek_timestamp(
+	PlayerData *player,
+	int64_t timestamp,
+	int flags)
+{
+	int last_paused = 0;
+	int ret;
+
+	pr_console("%s: called...\n", __func__);
+
+	if (!player)
+		return -EINVAL;
+
+	if (!player->fileload)
+		return -ENODATA;
+
+	if (!player->seekable)
+		return -EINVAL;
+
+	if (player->seeking)
+		return -EBUSY;
+
+	if (timestamp < player->pos_min)
+		timestamp = player->pos_min;
+
+	if (timestamp > player->pos_max)
+		timestamp = player->pos_max;
+
+	/* if busy, return immediately, or UI will freeze */
+	if (WaitForSingleObject(player->hMutexPlaybackSeek, 10) != WAIT_OBJECT_0) {
+		pr_console("%s: lock failed: busy\n", __func__);
+		return -EBUSY;
+	}
+
+	/* not allowed to change playback state during seeking */
+	if (WaitForSingleObject(player->hMutexPlaybackSwitch, 10) != WAIT_OBJECT_0)
+		goto seek_unlock;
+
+	player->seeking = 1;
+
+	if (player->playback_state == PLAYBACK_PAUSE) {
+		/* call player_playback_resume() directly */
+		player_playback_resume(player);
+
+		last_paused = 1;
+	}
+
+	if (player->playback_state == PLAYBACK_PLAY) {
+		/* wait: blocking both playback threads */
+		WaitForSingleObject(player->hSemPlaybackSDLPreSeek, INFINITE);
+	}
+
+	ret = av_seek_frame(player->avd->format_ctx, player->avd->stream_idx, timestamp, flags);
+
+	/* WORKAROUND: av_read_frame() needs some time to sync up context */
+	Sleep(SEEK_INTERVAL_DELAY_MS);
+
+	/* seek frame succeed */
+	if (ret >= 0)
+		player->pos_cur = timestamp;
+
+	/* clear ffmpeg decoded buffer */
+	playback_buf_flush(player->buf_decode);
+
+	if (player->playback_state == PLAYBACK_PLAY) {
+		/* signal: unblock both playback thread */
+		ReleaseSemaphore(player->hSemPlaybackSDLPostSeek, 1, NULL);
+	}
+
+	if (last_paused)
+		player_playback_pause(player);
+
+	player->seeking = 0;
+
+	ReleaseMutex(player->hMutexPlaybackSwitch);
+
+seek_unlock:
+	ReleaseMutex(player->hMutexPlaybackSeek);
+
+	return 0;
+}
+
+int player_seek_direction(
+	PlayerData *player,
+	PlaybackSeekDirection dir)
+{
+	return player_seek_timestamp(
+		player,
+		player->pos_cur + (player->seek_step * dir),
+		AVSEEK_FLAG_ANY);
+}
+
 int64_t player_file_bitrate_get(PlayerData *player)
 {
 	return player->avd->format_ctx->bit_rate;
@@ -1008,3 +1008,4 @@ int64_t player_timestamp_get(PlayerData *player)
 {
 	return player->pos_cur;
 }
+
