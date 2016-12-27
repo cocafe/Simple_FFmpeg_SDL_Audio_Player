@@ -10,7 +10,7 @@
 #define VOLUME_STEP_DEFAULT					(8)
 #define VOLUME_ENABLE_OVERLOUD				(TRUE)
 
-#define SEEK_INTERVAL_DELAY_MS				(200)
+#define SEEK_INTERVAL_DELAY_MS				(300)
 #define SEEK_STEP_DEFAULT					(1000)	/* FIXME: we should use duration length */
 
 typedef enum PlaybackSeekDirection {

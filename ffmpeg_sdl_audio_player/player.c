@@ -325,9 +325,13 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		pr_console("%s: synced with sdl thread starting\n", __func__);
 
 	while (1) {
-		ret = avcodec_decode_file(avd);
+		ret = -1;
+
+		if (!player->seeking)
+			ret = avcodec_decode_file(avd);
+
 		if (ret < 0) {
-			pr_console("%s: error occurred or eof (%#04x)\n", __func__, ret);
+			pr_console("%s: error occurred in decoder (%#04x)\n", __func__, ret);
 		} else {
 			pr_console("pts: (%lu/%lu) nb_samples: %d pkt_sz: %d swr_nb_samples: %d swr_bufsz: %d\n",
 				avd->frame->pts,
@@ -368,6 +372,10 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		/* buffer is full or eof reached but we still have buf not flushed  */
 		if (playback_buf_try_full(buf, avd->swr->dst_bufsize) ||
 			(avd->format_ctx->pb->eof_reached && playback_buf_pos_get(buf))) {
+
+			/* avoid seeking during av_read_frame() */
+			if (player->seeking)
+				ReleaseSemaphore(player->hSemPlaybackFFMPreSeek, 1, NULL);
 
 			/* wait: data playback done, wait to fill data init: 1
 			 * we wait here if playback is paused,
@@ -938,8 +946,16 @@ int player_seek_timestamp(
 	}
 
 	if (player->playback_state == PLAYBACK_PLAY) {
-		/* wait: blocking both playback threads */
-		WaitForSingleObject(player->hSemPlaybackSDLPreSeek, INFINITE);
+		/* wait: block sdl thread, sync with ffm thread */
+		while (WaitForSingleObject(player->hSemPlaybackSDLPreSeek, 100) == WAIT_TIMEOUT) {
+			if (player->ThreadSDLExit)
+				goto seek_unlock;
+		}
+
+		while (WaitForSingleObject(player->hSemPlaybackFFMPreSeek, 100) == WAIT_TIMEOUT) {
+			if (player->ThreadFFMExit)
+				goto seek_unlock;
+		}
 	}
 
 	ret = av_seek_frame(player->avd->format_ctx, player->avd->stream_idx, timestamp, flags);
@@ -955,7 +971,7 @@ int player_seek_timestamp(
 	playback_buf_flush(player->buf_decode);
 
 	if (player->playback_state == PLAYBACK_PLAY) {
-		/* signal: unblock both playback thread */
+		/* signal: unblock sdl playback thread */
 		ReleaseSemaphore(player->hSemPlaybackSDLPostSeek, 1, NULL);
 	}
 
