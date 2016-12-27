@@ -372,14 +372,6 @@ LRESULT WINAPI FFMThread(LPVOID data)
 			WaitForSingleObject(player->hSemPlaybackFFMPostSeek, INFINITE);
 		}
 
-		if (player->playback_state == PLAYBACK_PAUSE) {
-			/* wait: block thread */
-			WaitForSingleObject(player->hSemPlaybackFFMPause, INFINITE);
-
-			/* wait: block thread until state changed */
-			WaitForSingleObject(player->hSemPlaybackFFMResume, INFINITE);
-		}
-
 		if (player->playback_state == PLAYBACK_STOP) {
 			break;
 		}
@@ -388,10 +380,15 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		if (playback_buf_try_full(buf, avd->swr->dst_bufsize) ||
 			(avd->format_ctx->pb->eof_reached && playback_buf_pos_get(buf))) {
 
-			/* wait: data playback done, wait to fill data init: 1 */
+			/* wait: data playback done, wait to fill data init: 1
+			 * we wait here if playback is paused,
+			 * use PlayPeriodDone semaphore to block
+			 */
 			if (WaitForSingleObject(player->hSemPlayperiodDone, INFINITE) == WAIT_OBJECT_0) {
 				pr_console("%s: received play done\n", __func__);
 			}
+
+			/* TODO: if sought, buffer will be flushed. refill buffer */
 
 			/* signal: get buffer */
 			ReleaseSemaphore(player->hSemBufferSend, 1, NULL);
@@ -466,17 +463,6 @@ LRESULT WINAPI SDLThread(LPVOID data)
 			SDL_PauseAudio(FALSE);
 		}
 
-		if (player->playback_state == PLAYBACK_PAUSE) {
-			SDL_PauseAudio(TRUE);
-
-			/* wait: block thread */
-			WaitForSingleObject(player->hSemPlaybackSDLPause, INFINITE);
-			/* wait: block thread until state changed */
-			WaitForSingleObject(player->hSemPlaybackSDLResume, INFINITE);
-
-			SDL_PauseAudio(FALSE);
-		}
-
 		if (player->playback_state == PLAYBACK_STOP) {
 			break;
 		}
@@ -503,6 +489,17 @@ LRESULT WINAPI SDLThread(LPVOID data)
 
 		/* signal: buffer copied */
 		ReleaseSemaphore(player->hSemBufferRecv, 1, NULL);
+
+		if (player->playback_state == PLAYBACK_PAUSE) {
+			SDL_PauseAudio(TRUE);
+
+			/* wait: block thread */
+			WaitForSingleObject(player->hSemPlaybackSDLPause, INFINITE);
+			/* wait: block thread until state changed */
+			WaitForSingleObject(player->hSemPlaybackSDLResume, INFINITE);
+
+			SDL_PauseAudio(FALSE);
+		}
 
 		playback_buf_pos_reset(buf);
 
@@ -755,14 +752,12 @@ int player_playback_resume(PlayerData *player) {
 	}
 
 	/* signal: unblock playback threads */
-	ReleaseSemaphore(player->hSemPlaybackFFMPause, 1, NULL);
 	ReleaseSemaphore(player->hSemPlaybackSDLPause, 1, NULL);
 
 	/* avoid trigging block thread condition */
 	player->playback_state = PLAYBACK_PLAY;
 
 	/* signal: state changed */
-	ReleaseSemaphore(player->hSemPlaybackFFMResume, 1, NULL);
 	ReleaseSemaphore(player->hSemPlaybackSDLResume, 1, NULL);
 
 	return 0;
