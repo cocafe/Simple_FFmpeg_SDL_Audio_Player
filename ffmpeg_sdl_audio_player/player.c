@@ -900,8 +900,6 @@ int player_seek_timestamp(
 	int last_paused = 0;
 	int ret;
 
-	pr_console("%s: called...\n", __func__);
-
 	if (!player)
 		return -EINVAL;
 
