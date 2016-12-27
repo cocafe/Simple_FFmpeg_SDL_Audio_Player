@@ -626,7 +626,7 @@ int player_thread_destroy(PlayerData *player)
 	if (!player)
 		return -EINVAL;
 
-	switch (WaitForSingleObject(player->hSemFFMExit, 1000)) {
+	switch (WaitForSingleObject(player->hSemFFMExit, 3000)) {
 		case WAIT_OBJECT_0:
 			pr_console("%s: receive ffm thread exit\n", __func__);
 			break;
@@ -641,7 +641,7 @@ int player_thread_destroy(PlayerData *player)
 			break;
 	}
 
-	switch (WaitForSingleObject(player->hSemSDLExit, 1000)) {
+	switch (WaitForSingleObject(player->hSemSDLExit, 3000)) {
 		case WAIT_OBJECT_0:
 			pr_console("%s: receive sdl thread exit\n", __func__);
 			break;
