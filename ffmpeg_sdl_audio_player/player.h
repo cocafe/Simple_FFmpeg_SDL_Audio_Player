@@ -63,9 +63,14 @@ typedef struct PlayerData {
 	HANDLE							hSemPlaybackSDLStart;
 	HANDLE							hSemPlaybackSDLPause;
 	HANDLE							hSemPlaybackSDLResume;
+	HANDLE							hSemPlaybackSDLPreSeek;
+	HANDLE							hSemPlaybackSDLPostSeek;
+
 	HANDLE							hSemPlaybackFFMStart;
 	HANDLE							hSemPlaybackFFMPause;
 	HANDLE							hSemPlaybackFFMResume;
+	HANDLE							hSemPlaybackFFMPreSeek;
+	HANDLE							hSemPlaybackFFMPostSeek;
 
 	HANDLE							hMutexPlaybackSwitch;
 	HANDLE							hMutexPlaybackSeek;
@@ -85,6 +90,7 @@ typedef struct PlayerData {
 	int64_t							pos_max;
 
 	int64_t							seekable;
+	int64_t							seeking;
 	int64_t							seek_step;
 
 	PlaybackState					playback_state;

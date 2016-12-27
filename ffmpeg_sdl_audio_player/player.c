@@ -31,10 +31,14 @@ void player_threadctx_init(PlayerData *player)
 	player->hSemPlaybackFFMStart = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackFFMPause = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackFFMResume = CreateSemaphore(NULL, 0, 1, NULL);
+	player->hSemPlaybackFFMPreSeek = CreateSemaphore(NULL, 0, 1, NULL);
+	player->hSemPlaybackFFMPostSeek = CreateSemaphore(NULL, 0, 1, NULL);
 
 	player->hSemPlaybackSDLStart = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackSDLPause = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemPlaybackSDLResume = CreateSemaphore(NULL, 0, 1, NULL);
+	player->hSemPlaybackSDLPreSeek = CreateSemaphore(NULL, 0, 1, NULL);
+	player->hSemPlaybackSDLPostSeek = CreateSemaphore(NULL, 0, 1, NULL);
 
 	player->hSemBufferSend = CreateSemaphore(NULL, 0, 1, NULL);
 	player->hSemBufferRecv = CreateSemaphore(NULL, 0, 1, NULL);
@@ -51,9 +55,13 @@ void player_threadctx_deinit(PlayerData *player)
 	CloseHandle(player->hSemPlaybackFFMStart);
 	CloseHandle(player->hSemPlaybackFFMPause);
 	CloseHandle(player->hSemPlaybackFFMResume);
+	CloseHandle(player->hSemPlaybackFFMPreSeek);
+	CloseHandle(player->hSemPlaybackFFMPostSeek);
 	CloseHandle(player->hSemPlaybackSDLStart);
 	CloseHandle(player->hSemPlaybackSDLPause);
 	CloseHandle(player->hSemPlaybackSDLResume);
+	CloseHandle(player->hSemPlaybackSDLPreSeek);
+	CloseHandle(player->hSemPlaybackSDLPostSeek);
 	CloseHandle(player->hSemPlayperiodDone);
 	CloseHandle(player->hSemPlaybackFinish);
 	CloseHandle(player->hSemBufferSend);
@@ -197,6 +205,7 @@ int player_pos_init(PlayerData *player)
 	player->pos_min = 0;
 	player->pos_max = player->avd->format_ctx->streams[player->avd->stream_idx]->duration;
 	player->pos_cur = player->pos_min;
+	player->seeking = 0;
 	player->seekable = player->avd->format_ctx->pb->seekable;
 	player->seek_step = player->avd->swr->dst_nb_samples * 100;
 
@@ -320,18 +329,6 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		pr_console("%s: synced with sdl thread starting\n", __func__);
 
 	while (1) {
-		if (player->playback_state == PLAYBACK_PAUSE) {
-			/* wait: block thread */
-			WaitForSingleObject(player->hSemPlaybackFFMPause, INFINITE);
-
-			/* wait: block thread until state changed */
-			WaitForSingleObject(player->hSemPlaybackFFMResume, INFINITE);
-		}
-
-		if (player->playback_state == PLAYBACK_STOP) {
-			break;
-		}
-
 		ret = avcodec_decode_file(avd);
 		if (ret < 0) {
 			pr_console("%s: error occurred or eof (%#04x)\n", __func__, ret);
@@ -367,6 +364,25 @@ LRESULT WINAPI FFMThread(LPVOID data)
 		/* don't exit early before releasing playback finish signal */
 		if (player->ThreadSDLExit)
 			break;
+
+		if (player->seeking) {
+			/* signal: thread blocked, allow to seek */
+			ReleaseSemaphore(player->hSemPlaybackFFMPreSeek, 1, NULL);
+			/* wait: wait for seek frame done */
+			WaitForSingleObject(player->hSemPlaybackFFMPostSeek, INFINITE);
+		}
+
+		if (player->playback_state == PLAYBACK_PAUSE) {
+			/* wait: block thread */
+			WaitForSingleObject(player->hSemPlaybackFFMPause, INFINITE);
+
+			/* wait: block thread until state changed */
+			WaitForSingleObject(player->hSemPlaybackFFMResume, INFINITE);
+		}
+
+		if (player->playback_state == PLAYBACK_STOP) {
+			break;
+		}
 
 		/* buffer is full or eof reached but we still have buf not flushed  */
 		if (playback_buf_try_full(buf, avd->swr->dst_bufsize) ||
@@ -439,6 +455,17 @@ LRESULT WINAPI SDLThread(LPVOID data)
 	ReleaseSemaphore(player->hSemPlaybackSDLStart, 1, NULL);
 
 	while (1) {
+		if (player->seeking) {
+			SDL_PauseAudio(TRUE);
+
+			/* signal: thread blocked, allow to seek */
+			ReleaseSemaphore(player->hSemPlaybackSDLPreSeek, 1, NULL);
+			/* wait: wait for seek done */
+			WaitForSingleObject(player->hSemPlaybackSDLPostSeek, INFINITE);
+
+			SDL_PauseAudio(FALSE);
+		}
+
 		if (player->playback_state == PLAYBACK_PAUSE) {
 			SDL_PauseAudio(TRUE);
 
@@ -634,6 +661,8 @@ int player_seek_timestamp(
 	int paused = 0;
 	int ret;
 
+	pr_console("%s: called...\n", __func__);
+
 	if (!player)
 		return -EINVAL;
 
@@ -643,6 +672,9 @@ int player_seek_timestamp(
 	if (!player->seekable)
 		return -EINVAL;
 
+	if (player->seeking)
+		return -EBUSY;
+
 	if (timestamp < player->pos_min)
 		timestamp = player->pos_min;
 
@@ -651,20 +683,26 @@ int player_seek_timestamp(
 
 	/* if busy, return immediately, or UI will freeze */
 	if (WaitForSingleObject(player->hMutexPlaybackSeek, 10) != WAIT_OBJECT_0) {
-		pr_console("%s: busy\n", __func__);
+		pr_console("%s: lock failed: busy\n", __func__);
 		return -EBUSY;
 	}
 
+	/* not allowed to change playback state during seeking */
+	if (WaitForSingleObject(player->hMutexPlaybackSwitch, 10) != WAIT_OBJECT_0)
+		goto seek_unlock;
+
+	player->seeking = 1;
+
 	if (player->playback_state == PLAYBACK_PLAY) {
-		paused = 1;
-		if (player_playback_state_switch(player, PLAYBACK_PAUSE) == -ETIMEDOUT)
-			goto unlock;
+		/* wait: blocking both playback threads */
+		WaitForSingleObject(player->hSemPlaybackSDLPreSeek, INFINITE);
+		WaitForSingleObject(player->hSemPlaybackFFMPreSeek, INFINITE);
 	}
 
-	/* WORKAROUND: we need some time to let av_read_frame() sync up */
-	Sleep(SEEK_INTERVAL_DELAY_MS);
-
 	ret = av_seek_frame(player->avd->format_ctx, player->avd->stream_idx, timestamp, flags);
+
+	/* WORKAROUND: av_read_frame() needs some time to sync up context */
+	Sleep(SEEK_INTERVAL_DELAY_MS);
 
 	/* seek frame succeed */
 	if (ret >= 0)
@@ -673,11 +711,17 @@ int player_seek_timestamp(
 	/* clear ffmpeg decoded buffer */
 	playback_buf_flush(player->buf_decode);
 
-	/* resume */
-	if (paused)
-		player_playback_state_switch(player, PLAYBACK_PLAY);
+	if (player->playback_state == PLAYBACK_PLAY) {
+		/* signal: unblock both playback thread */
+		ReleaseSemaphore(player->hSemPlaybackFFMPostSeek, 1, NULL);
+		ReleaseSemaphore(player->hSemPlaybackSDLPostSeek, 1, NULL);
+	}
 
-unlock:
+	player->seeking = 0;
+
+	ReleaseMutex(player->hMutexPlaybackSwitch);
+
+seek_unlock:
 	ReleaseMutex(player->hMutexPlaybackSeek);
 
 	return 0;
