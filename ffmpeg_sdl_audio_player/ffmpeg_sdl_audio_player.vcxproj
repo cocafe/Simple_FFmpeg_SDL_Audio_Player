@@ -171,6 +171,7 @@
     <ClInclude Include="ffmpeg.h" />
     <ClInclude Include="playback_buf.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="player_thread.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sdl_snd.h" />
     <ClInclude Include="stdafx.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="playback_buf.c" />
     <ClCompile Include="player.c" />
+    <ClCompile Include="player_thread.c" />
     <ClCompile Include="sdl.c" />
     <ClCompile Include="test\test_ffmpeg.c" />
     <ClCompile Include="test\test_sdl.c" />
