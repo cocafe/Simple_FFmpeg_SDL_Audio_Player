@@ -1,3 +1,9 @@
+/**
+ * SDL Playback Devices
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+ 
 #include "sdl_snd.h"
 
 SDLPlaybackBuffer *sdl_playback_buffer_alloc(void)

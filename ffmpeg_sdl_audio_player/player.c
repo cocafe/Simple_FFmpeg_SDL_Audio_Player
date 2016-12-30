@@ -1,3 +1,9 @@
+/**
+ * Player Related Functions
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+ 
 #include "player.h"
 #include "wnd.h"
 

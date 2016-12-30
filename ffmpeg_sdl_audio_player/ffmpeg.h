@@ -1,3 +1,9 @@
+/**
+ * Header file for ffmpeg core
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #pragma once
 
 #include <libavutil\opt.h>

@@ -1,3 +1,9 @@
+/**
+ * Header file for player calls 
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #pragma once
 
 #include "stdafx.h"

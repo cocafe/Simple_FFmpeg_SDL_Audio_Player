@@ -1,3 +1,9 @@
+/**
+ * Header file for Windows native graphis user interface
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+ 
 #pragma once
 
 #include "stdafx.h"

@@ -1,3 +1,9 @@
+/**
+ * Player Threads
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #include "wnd.h"
 #include "player.h"
 #include "player_thread.h"

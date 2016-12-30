@@ -1,3 +1,9 @@
+/**
+ * Internal Audio Buffer
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+ 
 #include "playback_buf.h"
 
 PlaybackBuf *playback_buf_alloc(void)

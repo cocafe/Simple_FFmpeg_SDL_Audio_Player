@@ -1,3 +1,9 @@
+/**
+ * Common Debugging 
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #include "stdafx.h"
 
 #ifdef DEBUG

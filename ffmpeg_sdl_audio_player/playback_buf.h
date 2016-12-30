@@ -1,3 +1,9 @@
+/**
+ * Header file for internal playback buffer
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #pragma once
 
 #include "stdafx.h"

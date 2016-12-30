@@ -1,3 +1,9 @@
+/**
+ * Windows Program Main Entry
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #include "stdafx.h"
 #include "player.h"
 #include "wnd.h"

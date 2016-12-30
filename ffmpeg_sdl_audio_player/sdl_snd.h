@@ -1,3 +1,9 @@
+/**
+ * Header file for SDL playback device
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #pragma once
 
 #include "stdafx.h"

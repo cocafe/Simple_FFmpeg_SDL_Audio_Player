@@ -1,3 +1,9 @@
+/**
+ * FFMPEG Callbacks and Initializations
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #include "stdafx.h"
 #include "ffmpeg.h"
 

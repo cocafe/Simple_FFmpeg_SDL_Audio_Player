@@ -1,3 +1,9 @@
+/**
+ * Header file for player threads
+ *
+ *		Author: cocafe <cocafehj@gmail.com>
+ */
+
 #pragma once
 
 void player_threadctx_init(PlayerData *player);
