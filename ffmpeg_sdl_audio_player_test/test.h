@@ -6,7 +6,7 @@
 
 #pragma once
 
-#ifdef COMPLIE_TEST
+#ifdef COMPILE_PLAYER_TEST
 
 /**
  * Test ffmpeg decode function,

@@ -5,14 +5,14 @@
 *		Author: cocafe <cocafehj@gmail.com>
 */
 
-#include "..\stdafx.h"
-#include "..\ffmpeg.h"
-#include "..\sdl_snd.h"
-#include "..\debug.h"
+#include "..\ffmpeg_sdl_audio_player\stdafx.h"
+#include "..\ffmpeg_sdl_audio_player\ffmpeg.h"
+#include "..\ffmpeg_sdl_audio_player\sdl_snd.h"
+#include "..\ffmpeg_sdl_audio_player\debug.h"
 
-#include <test.h>
+#include "test.h"
 
-#ifdef COMPILE_TEST
+#ifdef COMPILE_PLAYER_TEST
 
 SDLAudioData *sad;
 AVDataCtx *avd;
