@@ -5,6 +5,7 @@
  */
  
 #include "player.h"
+#include "player_thread.h"
 #include "wnd.h"
 
 const uint16_t avfmt_2_sdl_fmt[] = {
