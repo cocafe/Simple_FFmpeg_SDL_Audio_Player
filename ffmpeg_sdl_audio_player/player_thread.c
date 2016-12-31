@@ -116,6 +116,11 @@ LRESULT WINAPI FFMThread(LPVOID data)
 
 			player->pos_cur = avd->frame->pts;
 
+			pcm_debug_file_write(
+				avd->swr->dst_data[0],
+				avd->swr->dst_bufsize,
+				1);
+
 			avcodec_decode_unref(avd);
 		}
 

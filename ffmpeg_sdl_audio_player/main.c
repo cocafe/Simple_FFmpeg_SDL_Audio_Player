@@ -19,6 +19,7 @@ INT APIENTRY wWinMain(
 	WndData *wndd;
 
 	InitDebugConsole();
+	CreatePCMDump(PCM_DUMP_FILEPATH);
 
 	wndd = AllocWndData();
 	if (!wndd)
