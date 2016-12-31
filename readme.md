@@ -7,6 +7,10 @@ about audio decoding and playback.
 
 ------
 
+Require *Visual Studio 2015*
+
+------
+
 _FIXME_:
 
 > * User interface looks simple and hardcoded
